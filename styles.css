@@ -27,8 +27,8 @@ h1 {
 
 .gallery img {
   width: 100%;
-  height: 250px;
-  object-fit: cover;
+  height: auto;         /* keep natural height */
+  object-fit: contain;  /* make sure whole image is visible */
   border-radius: 12px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease;
@@ -45,6 +45,34 @@ h1 {
 /* 🍛 Foods gallery = 2 columns */
 .gallery.foods {
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}
+.parallel-grid {
+  display: grid;
+  gap: 12px;
+}
+
+/* 2 columns on wide screens, 1 column on small screens */
+.parallel-grid.two-col {
+  grid-template-columns: repeat(2, 1fr);
+}
+.parallel-grid.three-col {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* responsive: fall back to 1 column under 600px */
+@media (max-width: 600px) {
+  .parallel-grid.two-col,
+  .parallel-grid.three-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.parallel-grid img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: 6px;
+  display: block;
 }
 
 footer {
