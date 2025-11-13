@@ -54,7 +54,7 @@ h1 {
 }
 
 /* 2 columns on wide screens, 1 column on small screens */
-.parallel-grid.two-col {
+.twoCol {
   grid-template-columns: repeat(2, 1fr);
 }
 .parallel-grid.three-col {
