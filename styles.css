@@ -37,6 +37,15 @@ h1 {
 .gallery img:hover {
   transform: scale(1.0);
 }
+/* 🧃 Drinks gallery = 3 columns */
+.gallery.drinks {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+/* 🍛 Foods gallery = 2 columns */
+.gallery.foods {
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+}
 
 footer {
   text-align: center;
