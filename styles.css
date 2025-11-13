@@ -39,28 +39,24 @@ h1 {
 .gallery img:hover {
   transform: scale(1.0);
 }
-/* 🧃 Drinks gallery = 3 columns */
-.gallery.drinks {
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-}
-
-/* 🍛 Foods gallery = 2 columns */
-.gallery.foods {
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-}
-.parallel-grid {
+.gallery.twoCol {
   display: grid;
-  gap: 12px;
-}
-
-/* 2 columns on wide screens, 1 column on small screens */
-.twoCol {
   grid-template-columns: repeat(2, 1fr);
-}
-.parallel-grid.three-col {
-  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
+.gallery.twoCol img {
+  width: 100%;
+  height: auto;
+  object-fit: contain;     /* show full image */
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  padding: 4px;
+}
 /* responsive: fall back to 1 column under 600px */
 @media (max-width: 600px) {
   .parallel-grid.two-col,
