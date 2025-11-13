@@ -2,7 +2,7 @@
 """
 generate_qr.py
 Usage:
-  python generate_qr.py "https://your-username.github.io/your-repo/" [output=qr.png]
+  python generate_qr.py "https://github.com/WinLwinMaungZhiWang/Ragoon-Vibe.git" [output=qr.png]
 
 Creates a QR code image file (PNG) pointing to the URL you provide.
 """
