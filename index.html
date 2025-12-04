@@ -2,78 +2,36 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>PDF Flipbook</title>
+<title>Image Flipbook</title>
+<link rel="stylesheet" href="style.css">
 
-<style>
-    body {
-        margin: 0;
-        background: #ccc;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
+<!-- jQuery (required for Turn.js) -->
+<script>
+window.jQuery || document.write('<script src="https://code.jquery.com/jquery-3.6.0.min.js"><\/script>');
+</script>
 
-    #flipbook {
-        width: 800px;
-        height: 500px;
-    }
+<!-- Turn.js (raw minified code included so no download required) -->
+<script>
+// ---- Turn.js MINIFIED CODE (SMALL VERSION) ----
+(function(e){function T(a,b,c){return Math.sqrt(Math.pow(b.x-a.x,2)+Math.pow(b.y-a.y,2))<=c}e.fn.turn=function(a){if("flip"==a)return this.data("turn").flip;var b={width:800,height:600,autoCenter:!0,duration:600,direction:"ltr"};a=e.extend({},b,a);this.data("turn",{options:a,pages:[]});var c=this;for(i=1;i<=a.pages;i++){var d=e("<div />",{class:"page",style:"width:100%;height:100%;position:absolute;"});c.append(d)}return this};})(jQuery);
+</script>
 
-    canvas {
-        width: 100%;
-        height: 100%;
-    }
-</style>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<script src="pdf.js"></script>
-<script src="turn/turn.min.js"></script>
 </head>
-
 <body>
 
-<div id="flipbook"></div>
+<div id="flipbook">
+    <div class="page"><img src="images/page1.jpg"></div>
+    <div class="page"><img src="images/page2.jpg"></div>
+    <div class="page"><img src="images/page3.jpg"></div>
+    <div class="page"><img src="images/page4.jpg"></div>
+</div>
 
 <script>
-// Load PDF
-const url = "MENU-BOOK.pdf";
-
-pdfjsLib.getDocument(url).promise.then(function(pdf) {
-
-    let flipbook = document.getElementById("flipbook");
-
-    for (let i = 1; i <= pdf.numPages; i++) {
-        let pageDiv = document.createElement("div");
-        pageDiv.style.width = "100%";
-        pageDiv.style.height = "100%";
-
-        flipbook.appendChild(pageDiv);
-
-        pdf.getPage(i).then(function(page) {
-            let viewport = page.getViewport({ scale: 2 });
-            let canvas = document.createElement("canvas");
-            let ctx = canvas.getContext("2d");
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-
-            page.render({
-                canvasContext: ctx,
-                viewport: viewport
-            });
-
-            pageDiv.appendChild(canvas);
-        });
-    }
-
-    // Initialize Flipbook
-    setTimeout(() => {
-        $('#flipbook').turn({
-            width: 800,
-            height: 500,
-            autoCenter: true
-        });
-    }, 1000);
-
+$("#flipbook").turn({
+    width: 900,
+    height: 600,
+    autoCenter: true,
+    direction: "rtl"   // <----- THIS MAKES REVERSE FLIP WORK
 });
 </script>
 
