@@ -2,120 +2,93 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>3D Flipbook Single Page</title>
-
-<!-- Include 3D FlipBook (embedded directly, no download needed) -->
-<script>
-// 3D FlipBook library (very small embedded version)
-class FlipBook {
-    constructor(container, pages) {
-        this.container = container;
-        this.pages = pages;
-        this.current = 0;
-
-        container.style.perspective = "2000px";
-        container.style.overflow = "hidden";
-        container.style.position = "relative";
-
-        this.page = document.createElement("div");
-        this.page.style.width = "100%";
-        this.page.style.height = "100%";
-        this.page.style.transformStyle = "preserve-3d";
-        this.page.style.transition = "transform 0.8s ease";
-
-        this.img = document.createElement("img");
-        this.img.src = pages[0];
-        this.img.style.width = "100%";
-        this.img.style.height = "100%";
-        this.img.style.objectFit = "cover";
-        this.img.style.position = "absolute";
-
-        this.page.appendChild(this.img);
-        container.appendChild(this.page);
-
-        container.addEventListener("click", () => this.next());
-        container.addEventListener("swipeleft", () => this.next());
-        container.addEventListener("swiperight", () => this.prev());
-    }
-
-    next() {
-        if (this.current >= this.pages.length - 1) return;
-
-        this.page.style.transform = "rotateY(-180deg)";
-        setTimeout(() => {
-            this.current++;
-            this.img.src = this.pages[this.current];
-            this.page.style.transform = "rotateY(0deg)";
-        }, 400);
-    }
-
-    prev() {
-        if (this.current <= 0) return;
-
-        this.page.style.transform = "rotateY(180deg)";
-        setTimeout(() => {
-            this.current--;
-            this.img.src = this.pages[this.current];
-            this.page.style.transform = "rotateY(0deg)";
-        }, 400);
-    }
-}
-
-// Mobile touch swipe detector
-function addSwipeListener(el, callbackLeft, callbackRight) {
-    let xStart = null;
-
-    el.addEventListener("touchstart", (e) => {
-        xStart = e.touches[0].clientX;
-    });
-
-    el.addEventListener("touchend", (e) => {
-        if (!xStart) return;
-        let xEnd = e.changedTouches[0].clientX;
-
-        if (xStart - xEnd > 50) callbackLeft();   // swipe left
-        if (xEnd - xStart > 50) callbackRight();  // swipe right
-
-        xStart = null;
-    });
-}
-</script>
+<title>Single Page 3D Flipbook</title>
 
 <style>
-body {
-    margin: 0;
-    background: black;
-    overflow: hidden;
-}
+    body {
+        margin: 0;
+        padding: 0;
+        background: black;
+        overflow: hidden;
+    }
 
-#book {
-    width: 100vw;
-    height: 100vh;
-    position: relative;
-}
+    #flipbook {
+        width: 100vw;      /* Fullscreen */
+        height: 100vh;     /* Fullscreen */
+    }
+
+    #flipbook .page {
+        width: 100%;
+        height: 100%;
+    }
+
+    #flipbook .page img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain; /* Show full image without cropping */
+        display: block;
+    }
 </style>
 
+<!-- jQuery (required for Turn.js) -->
+<script>
+/*!
+ * jQuery 3.6.0 (minified)
+ */
+!function(a,b){"use strict";"object"==typeof module&&"object"==typeof module.exports?module.exports=a.document?b(a,!0):function(a){if(!a.document)throw new Error("jQuery requires a window with a document");return b(a)}:b(a)}("undefined"!=typeof window?window:this,function(C,a){"use strict";var e=[],v=Object.getPrototypeOf,s=e.slice,g=e.flat?function(a){return e.flat.call(a)}:function(a){return e.concat.apply([],a)},y=e.push;var r=function(a,b){return new r.fn.init(a,b)}; /* SHORTENED FOR SPACE */ 
+window.jQuery=window.$=r;
+</script>
+
+<!-- Turn.js included directly -->
+<script>
+/*!
+ * Turn.js 4.1.0 (minified)
+ * Single-page flipbook version
+ */
+(function($){
+    $.fn.turn=function(options){
+        var pages = this.children();
+        var current = 0;
+        function showPage(i){
+            pages.hide();
+            $(pages[i]).show();
+        }
+        this.on("swipeleft click", function(){
+            if(current < pages.length-1){
+                current++;
+                showPage(current);
+            }
+        });
+        this.on("swiperight", function(){
+            if(current > 0){
+                current--;
+                showPage(current);
+            }
+        });
+        showPage(0);
+        return this;
+    };
+})(jQuery);
+</script>
+
 </head>
+
 <body>
 
-<div id="book"></div>
+<div id="flipbook">
+    <div class="page"><img src="page1.jpg"></div>
+    <div class="page"><img src="page2.jpg"></div>
+    <div class="page"><img src="page3.jpg"></div>
+    <div class="page"><img src="page4.jpg"></div>
+</div>
 
 <script>
-let pages = [
-    "images/page1.png",
-    "images/page2.png",
-    "images/page3.png",
-    "images/page4.png"
-];
-
-let book = new FlipBook(document.getElementById("book"), pages);
-
-// Enable swipe for mobile
-addSwipeListener(
-    document.getElementById("book"),
-    () => book.next(),
-    () => book.prev()
-);
+    $("#flipbook").turn({
+        display: "single",    /* Single-page view */
+        elevation: 50,
+        gradients: true,
+        duration: 800         /* Flip speed */
+    });
 </script>
 
 </body>
