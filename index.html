@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Single Page 3D Flip</title>
 
-<!-- PageFlip Library -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/page-flip/dist/css/page-flip.css">
 <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
 
@@ -22,6 +21,8 @@
     #viewer {
         width: 100vw;
         height: 100vh;
+        position: relative;
+        cursor: pointer;
     }
 
     .page {
@@ -29,37 +30,43 @@
         height: 100%;
         background-size: contain;
         background-repeat: no-repeat;
-        background-position: center center;
+        background-position: center;
     }
+
+    /* Left and right click zones */
+    .zone {
+        position: absolute;
+        top: 0;
+        width: 50%;
+        height: 100%;
+    }
+
+    #leftZone { left: 0; }
+    #rightZone { right: 0; }
 </style>
 
 </head>
 <body>
 
-<div id="viewer"></div>
+<div id="viewer">
+    <div id="leftZone" class="zone"></div>
+    <div id="rightZone" class="zone"></div>
+</div>
 
 <script>
-// ----------------------------------------------
-// CREATE FLIP INSTANCE (FOR SINGLE PAGE MODE)
-// ----------------------------------------------
 const viewer = document.getElementById("viewer");
 
 const flip = new St.PageFlip(viewer, {
-    width: 800,       // base width
-    height: 1000,     // base height
+    width: 800,
+    height: 1000,
     size: "stretch",
-    minWidth: 300,
-    maxWidth: 2500,
-    minHeight: 400,
-    maxHeight: 3500,
-    singlePage: true,         // <<<<<<<<<< IMPORTANT
+    singlePage: true,
     showCover: false,
-    mobileScrollSupport: false
+    mobileScrollSupport: false,
+    useMouseEvents: true          // IMPORTANT for single-page flipping
 });
 
-// ----------------------------------------------
-// LOAD IMAGES AS SEPARATE PAGES
-// ----------------------------------------------
+// Load pages
 flip.loadFromImages([
     "page1.png",
     "page2.png",
@@ -68,9 +75,19 @@ flip.loadFromImages([
     "page5.png"
 ]);
 
-// Optional: Flip to next page on click
-viewer.addEventListener("click", () => {
+// Wait until pages fully loaded
+flip.on("init", () => {
+    console.log("Flipbook ready.");
+});
+
+// Right click zone → next page
+document.getElementById("rightZone").addEventListener("click", () => {
     flip.flipNext();
+});
+
+// Left click zone → previous page
+document.getElementById("leftZone").addEventListener("click", () => {
+    flip.flipPrev();
 });
 </script>
 
