@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Rangoon_Vibe</title>
+
 <style>
     body {
         background: #222;
@@ -12,11 +13,15 @@
         height: 100vh;
         margin: 0;
         font-family: sans-serif;
+        overflow: hidden;
     }
 
+    /* Make viewer responsive */
     .viewer {
-        width: 500px;
-        height: 700px;
+        width: 90vw;              /* auto scale to phone width */
+        max-width: 500px;         /* limit for large screens */
+        height: 140vw;            /* keep book shape */
+        max-height: 700px;
         position: relative;
         perspective: 2000px;
     }
@@ -25,53 +30,56 @@
         width: 100%;
         height: 100%;
         position: absolute;
-        background-size: cover;
+        background-size: contain; /* no crop, full fit */
+        background-repeat: no-repeat;
         background-position: center;
         backface-visibility: hidden;
         transform-style: preserve-3d;
         border-radius: 8px;
     }
 
-    /* The flipping page */
     .flip-page {
         transition: transform 0.7s ease;
         transform-origin: left center;
     }
 
-    /* When going backward, change pivot */
     .flip-page.reverse {
         transform-origin: right center;
     }
 
-    /* Next button area */
+    /* Buttons responsive */
     .controls {
         position: absolute;
-        bottom: -70px;
+        bottom: -60px;
         width: 100%;
         display: flex;
         justify-content: space-between;
     }
+
     button {
-        padding: 10px 20px;
+        padding: 8px 18px;
         background: #444;
         color: white;
         border: none;
         cursor: pointer;
+        font-size: 16px;
         border-radius: 6px;
-        font-size: 18px;
     }
+
     button:hover {
         background: #666;
+    }
+
+    /* Better for mobile touch */
+    button:active {
+        transform: scale(0.95);
     }
 </style>
 </head>
 <body>
 
 <div class="viewer">
-    <!-- Current page -->
     <div id="currentPage" class="page"></div>
-
-    <!-- Flipping page -->
     <div id="flipPage" class="page flip-page"></div>
 
     <div class="controls">
@@ -82,7 +90,7 @@
 
 <script>
 let page = 1;
-let maxPages = 10; // change to how many images exist (page1.png ... page10.png)
+let maxPages = 10; // change to your number of pages
 
 const currentPage = document.getElementById("currentPage");
 const flipPage = document.getElementById("flipPage");
@@ -91,7 +99,7 @@ function showPage(number) {
     currentPage.style.backgroundImage = `url('page${number}.png')`;
 }
 
-// initial
+// initial page
 showPage(page);
 
 document.getElementById("nextBtn").onclick = () => {
@@ -99,7 +107,6 @@ document.getElementById("nextBtn").onclick = () => {
 
     flipPage.classList.remove("reverse");
     flipPage.style.transformOrigin = "left center";
-
     flipPage.style.backgroundImage = `url('page${page + 1}.png')`;
     flipPage.style.transform = "rotateY(-180deg)";
 
@@ -115,7 +122,6 @@ document.getElementById("prevBtn").onclick = () => {
 
     flipPage.classList.add("reverse");
     flipPage.style.transformOrigin = "right center";
-
     flipPage.style.backgroundImage = `url('page${page - 1}.png')`;
     flipPage.style.transform = "rotateY(180deg)";
 
