@@ -2,77 +2,131 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Front-Only 3D Flip (Single Page)</title>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/page-flip/dist/css/page-flip.css">
-<script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
-
+<title>Rangoon_Vibe</title>
 <style>
     body {
-        margin: 0;
-        background: #111;
-        height: 100vh;
+        background: #222;
         display: flex;
         justify-content: center;
         align-items: center;
-        overflow: hidden;
+        height: 100vh;
+        margin: 0;
+        font-family: sans-serif;
     }
 
-    #viewer {
-        width: 100vw;
-        height: 100vh;
+    .viewer {
+        width: 500px;
+        height: 700px;
         position: relative;
+        perspective: 2000px;
     }
 
     .page {
-        background-size: contain !important;
-        background-position: center !important;
-        background-repeat: no-repeat !important;
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        background-size: cover;
+        background-position: center;
+        backface-visibility: hidden;
+        transform-style: preserve-3d;
+        border-radius: 8px;
     }
 
-    /* 🔥 KEY FIX: hide the backside completely */
-    .stf__item-back {
-        display: none !important;
+    /* The flipping page */
+    .flip-page {
+        transition: transform 0.7s ease;
+        transform-origin: left center;
     }
 
-    /* Optional: no shadow */
-    .stf__shadow {
-        display: none !important;
+    /* When going backward, change pivot */
+    .flip-page.reverse {
+        transform-origin: right center;
+    }
+
+    /* Next button area */
+    .controls {
+        position: absolute;
+        bottom: -70px;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+    }
+    button {
+        padding: 10px 20px;
+        background: #444;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 6px;
+        font-size: 18px;
+    }
+    button:hover {
+        background: #666;
     }
 </style>
-
 </head>
 <body>
 
-<div id="viewer"></div>
+<div class="viewer">
+    <!-- Current page -->
+    <div id="currentPage" class="page"></div>
+
+    <!-- Flipping page -->
+    <div id="flipPage" class="page flip-page"></div>
+
+    <div class="controls">
+        <button id="prevBtn">◀ Back</button>
+        <button id="nextBtn">Next ▶</button>
+    </div>
+</div>
 
 <script>
-const viewer = document.getElementById("viewer");
+let page = 1;
+let maxPages = 10; // change to how many images exist (page1.png ... page10.png)
 
-const flip = new St.PageFlip(viewer, {
-    width: 900,
-    height: 1200,
-    size: "stretch",
-    singlePage: true,            // show only one page
-    showCover: false,
-    useMouseEvents: true,
-    mobileScrollSupport: false,
-    flippingTime: 800            // smooth animation
-});
+const currentPage = document.getElementById("currentPage");
+const flipPage = document.getElementById("flipPage");
 
-// Load your images
-flip.loadFromImages([
-    "page1.png",
-    "page2.png",
-    "page3.png",
-    "page4.png",
-]);
+function showPage(number) {
+    currentPage.style.backgroundImage = `url('page${number}.png')`;
+}
 
-// Click to flip next
-viewer.addEventListener("click", () => {
-    flip.flipNext();
-});
+// initial
+showPage(page);
+
+document.getElementById("nextBtn").onclick = () => {
+    if (page >= maxPages) return;
+
+    flipPage.classList.remove("reverse");
+    flipPage.style.transformOrigin = "left center";
+
+    flipPage.style.backgroundImage = `url('page${page + 1}.png')`;
+    flipPage.style.transform = "rotateY(-180deg)";
+
+    setTimeout(() => {
+        page++;
+        showPage(page);
+        flipPage.style.transform = "rotateY(0deg)";
+    }, 700);
+};
+
+document.getElementById("prevBtn").onclick = () => {
+    if (page <= 1) return;
+
+    flipPage.classList.add("reverse");
+    flipPage.style.transformOrigin = "right center";
+
+    flipPage.style.backgroundImage = `url('page${page - 1}.png')`;
+    flipPage.style.transform = "rotateY(180deg)";
+
+    setTimeout(() => {
+        page--;
+        showPage(page);
+        flipPage.style.transform = "rotateY(0deg)";
+    }, 700);
+};
 </script>
 
 </body>
 </html>
+
