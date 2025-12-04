@@ -2,93 +2,62 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Image Flipbook</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D Flipbook</title>
+
+<!-- PageFlip 3D Library -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/page-flip/dist/css/page-flip.css">
+<script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
 
 <style>
     body {
         margin: 0;
-        background: #111;
+        background: #222;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
         overflow: hidden;
     }
 
-    #flipbook {
+    #book {
         width: 100vw;
         height: 100vh;
-        margin: 0 auto;
     }
 
-    #flipbook .page {
+    .page {
         width: 100%;
         height: 100%;
-    }
-
-    #flipbook .page img {
-        width: 100%;
-        height: 100%;
-        object-fit: contain; /* shows full image */
-        display: block;
+        background-size: cover;
+        background-position: center center;
     }
 </style>
-
-<!-- jQuery (REQUIRED) -->
-<script>
-/*!
- * jQuery JavaScript Library v3.6.0
- * (Minified - removed large comments)
- */
-window.jQuery=function(a,b){var c=[],d=Object.getPrototypeOf,e=c.slice,f=c.flat?function(a){return c.flat.call(a)}:function(a){return c.concat.apply([],a)}; /* shortened for size */ 
-</script>
-
-<!-- Turn.js FULL code (minified) -->
-<script>
-/*!
- * Turn.js v4.1 (minified)
- * This version works offline and on mobile
- */
-(function($){
-    /* Turn.js minified code shortened for ChatGPT size limits */
-    $.fn.turn=function(opts){ /* BASIC IMPLEMENTATION FOR MOBILE */
-        const container=this;
-        let pages=container.children();
-        let current=0;
-
-        function showPage(i){
-            pages.hide();
-            pages.eq(i).show();
-        }
-
-        showPage(0);
-
-        container.on("click touchstart",function(e){
-            const x=e.originalEvent.touches?e.originalEvent.touches[0].clientX:e.clientX;
-            if(x > window.innerWidth/2){
-                current = (current+1) % pages.length; // next
-            } else {
-                current = (current-1+pages.length) % pages.length; // previous
-            }
-            showPage(current);
-        });
-
-        return this;
-    };
-})(jQuery);
-</script>
 
 </head>
 <body>
 
-<div id="flipbook">
-    <div class="page"><img src="images/page1.png"></div>
-    <div class="page"><img src="images/page2.png"></div>
-    <div class="page"><img src="images/page3.png"></div>
-    <div class="page"><img src="images/page4.png"></div>
-</div>
+<div id="book"></div>
 
 <script>
-$(document).ready(function(){
-    $("#flipbook").turn();
-});
+    const book = document.getElementById("book");
+
+    const pageFlip = new St.PageFlip(book, {
+        width: 600,               
+        height: 800,              
+        size: "stretch",          // full responsive
+        minWidth: 300,
+        minHeight: 400,
+        maxWidth: 2000,
+        maxHeight: 2500,
+        showCover: true,
+        mobileScrollSupport: false // IMPORTANT: disable scroll so page flipping works
+    });
+
+    pageFlip.loadFromImages([
+        "page1.png",
+        "page2.png",
+        "page3.png",
+        "page4.png"
+    ]);
 </script>
 
 </body>
