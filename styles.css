@@ -1,81 +1,59 @@
+/* ------------------------------
+   Global Page Style
+--------------------------------*/
 body {
-  font-family: 'Dancing Script', cursive;
-  margin: 0;
-  background-color: #0e1211;
-  color: #f3e496;
+    margin: 0;
+    padding: 0;
+    background: #e5e5e5;      /* Light gray background */
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
 }
 
-header {
-  text-align: center;
-  padding: 20px 10px;
+/* ------------------------------
+   Flipbook Container
+--------------------------------*/
+#flipbook {
+    width: 900px;             /* Adjust book width */
+    height: 600px;            /* Adjust book height */
+    margin: auto;
+    background: white;
+    box-shadow: 0 0 25px rgba(0,0,0,0.2);  /* Book drop shadow */
+    border-radius: 10px;      /* Rounded corners */
 }
 
-h1 {
-  margin: 0;
-  font-size: 26px;
-  letter-spacing: 0.5px;
+/* Turn.js pages */
+#flipbook .page {
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
 }
 
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
-  padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
+/* ------------------------------
+   Canvas Page Style
+--------------------------------*/
+canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
 }
 
-.gallery img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;     /* show whole image */
-  border-radius: 12px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  background-color: #fff;  /* gives clean border around image */
-  padding: 4px;
+/* ------------------------------
+   Optional: Page Shadow Effects
+--------------------------------*/
+.page-shadow {
+    box-shadow: inset -5px 0 8px rgba(0,0,0,0.2);
 }
 
-
-.gallery img:hover {
-  transform: scale(1.0);
-}
-.gallery.twoCol {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-  padding: 20px;
-  max-width: 1000px;
-  margin: 0 auto;
-}
-
-.gallery.twoCol img {
-  width: 100%;
-  height: auto;
-  object-fit: contain;     /* show full image */
-  border-radius: 12px;
-  background-color: #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  padding: 4px;
-}
-/* responsive: fall back to 1 column under 600px */
-@media (max-width: 600px) {
-  .parallel-grid.two-col,
-  .parallel-grid.three-col {
-    grid-template-columns: 1fr;
-  }
-}
-
-.parallel-grid img {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  border-radius: 6px;
-  display: block;
-}
-
-footer {
-  text-align: center;
-  padding: 12px;
-  color: #fef9c2;
-  font-size: 13px;
+/* Optional: center page numbers or titles */
+.page-number {
+    position: absolute;
+    bottom: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 14px;
+    color: #666;
 }
