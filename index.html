@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Single Page 3D Flip</title>
+<title>Front-Only 3D Flip (Single Page)</title>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/page-flip/dist/css/page-flip.css">
 <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
@@ -11,10 +11,10 @@
     body {
         margin: 0;
         background: #111;
+        height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
         overflow: hidden;
     }
 
@@ -22,74 +22,55 @@
         width: 100vw;
         height: 100vh;
         position: relative;
-        cursor: pointer;
     }
 
     .page {
-        width: 100%;
-        height: 100%;
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
+        background-size: contain !important;
+        background-position: center !important;
+        background-repeat: no-repeat !important;
     }
 
-    /* Left and right click zones */
-    .zone {
-        position: absolute;
-        top: 0;
-        width: 50%;
-        height: 100%;
+    /* 🔥 KEY FIX: hide the backside completely */
+    .stf__item-back {
+        display: none !important;
     }
 
-    #leftZone { left: 0; }
-    #rightZone { right: 0; }
+    /* Optional: no shadow */
+    .stf__shadow {
+        display: none !important;
+    }
 </style>
 
 </head>
 <body>
 
-<div id="viewer">
-    <div id="leftZone" class="zone"></div>
-    <div id="rightZone" class="zone"></div>
-</div>
+<div id="viewer"></div>
 
 <script>
 const viewer = document.getElementById("viewer");
 
 const flip = new St.PageFlip(viewer, {
-    width: 800,
-    height: 1000,
+    width: 900,
+    height: 1200,
     size: "stretch",
-    singlePage: true,
+    singlePage: true,            // show only one page
     showCover: false,
+    useMouseEvents: true,
     mobileScrollSupport: false,
-    useMouseEvents: true          // IMPORTANT for single-page flipping
+    flippingTime: 800            // smooth animation
 });
 
-// Load pages
+// Load your images
 flip.loadFromImages([
     "page1.png",
     "page2.png",
     "page3.png",
     "page4.png",
-    "page5.png",
-    "page6.png",
-    "page7.png"
 ]);
 
-// Wait until pages fully loaded
-flip.on("init", () => {
-    console.log("Flipbook ready.");
-});
-
-// Right click zone → next page
-document.getElementById("rightZone").addEventListener("click", () => {
+// Click to flip next
+viewer.addEventListener("click", () => {
     flip.flipNext();
-});
-
-// Left click zone → previous page
-document.getElementById("leftZone").addEventListener("click", () => {
-    flip.flipPrev();
 });
 </script>
 
