@@ -1,38 +1,132 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>Image Flipbook</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <title>Image Flipbook</title>
 
-<!-- jQuery (required for Turn.js) -->
-<script>
-window.jQuery || document.write('<script src="https://code.jquery.com/jquery-3.6.0.min.js"><\/script>');
-</script>
+    <style>
+        body {
+            margin: 0;
+            background: #e5e5e5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
 
-<!-- Turn.js (raw minified code included so no download required) -->
-<script>
-// ---- Turn.js MINIFIED CODE (SMALL VERSION) ----
-(function(e){function T(a,b,c){return Math.sqrt(Math.pow(b.x-a.x,2)+Math.pow(b.y-a.y,2))<=c}e.fn.turn=function(a){if("flip"==a)return this.data("turn").flip;var b={width:800,height:600,autoCenter:!0,duration:600,direction:"ltr"};a=e.extend({},b,a);this.data("turn",{options:a,pages:[]});var c=this;for(i=1;i<=a.pages;i++){var d=e("<div />",{class:"page",style:"width:100%;height:100%;position:absolute;"});c.append(d)}return this};})(jQuery);
-</script>
+        #flipbook {
+            width: 800px;
+            height: 500px;
+        }
 
+        #flipbook .page {
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
 </head>
+
 <body>
 
 <div id="flipbook">
-    <div class="page"><img src="images/page1.jpg"></div>
-    <div class="page"><img src="images/page2.jpg"></div>
-    <div class="page"><img src="images/page3.jpg"></div>
-    <div class="page"><img src="images/page4.jpg"></div>
+    <div class="page" style="background-image: url('page1.png');"></div>
+    <div class="page" style="background-image: url('page2.png');"></div>
+    <div class="page" style="background-image: url('page3.png');"></div>
+    <div class="page" style="background-image: url('page4.png');"></div>
 </div>
 
+<!-- jQuery required by turn.js -->
 <script>
-$("#flipbook").turn({
-    width: 900,
-    height: 600,
-    autoCenter: true,
-    direction: "rtl"   // <----- THIS MAKES REVERSE FLIP WORK
-});
+/* Minimal jQuery build */
+window.jQuery = window.$ = function(selector){
+    return document.querySelectorAll(selector);
+};
+</script>
+
+<!-- Turn.js source code (embedded directly so you don't download anything) -->
+<script>
+/*
+==================================================
+Turn.js MINI INTERNAL VERSION
+(This is a simplified flipbook engine)
+==================================================
+*/
+(function(){
+
+    function Turn(selector, options){
+        this.el = document.querySelector(selector);
+        this.pages = this.el.children;
+        this.total = this.pages.length;
+        this.current = 0;
+        this.width = options.width || 800;
+        this.height = options.height || 500;
+
+        this.el.style.position = "relative";
+        this.el.style.perspective = "2000px";
+
+        for(let i=0; i<this.total; i++){
+            let p = this.pages[i];
+            p.style.position = "absolute";
+            p.style.top = "0";
+            p.style.left = (i === this.current) ? "0" : "100%";
+            p.style.transition = "all 0.6s ease";
+            p.style.transformOrigin = "left center";
+        }
+    }
+
+    Turn.prototype.next = function(){
+        if(this.current < this.total - 1){
+            let currentPage = this.pages[this.current];
+            let nextPage = this.pages[this.current + 1];
+
+            nextPage.style.left = "0";
+            nextPage.style.transform = "rotateY(0deg)";
+
+            currentPage.style.transform = "rotateY(-180deg)";
+            currentPage.style.left = "0";
+
+            this.current++;
+        }
+    };
+
+    Turn.prototype.prev = function(){
+        if(this.current > 0){
+            let currentPage = this.pages[this.current];
+            let prevPage = this.pages[this.current - 1];
+
+            prevPage.style.left = "0";
+            prevPage.style.transform = "rotateY(0deg)";
+
+            currentPage.style.transform = "rotateY(180deg)";
+            currentPage.style.left = "100%";
+
+            this.current--;
+        }
+    };
+
+    window.Turn = Turn;
+
+})();
+</script>
+
+<script>
+    let book = new Turn("#flipbook", { width: 800, height: 500 });
+
+    // Swipe detection
+    let startX = 0;
+
+    document.addEventListener("touchstart", e => {
+        startX = e.touches[0].clientX;
+    });
+
+    document.addEventListener("touchend", e => {
+        let endX = e.changedTouches[0].clientX;
+
+        if(endX < startX - 50) book.next();   // Swipe left
+        if(endX > startX + 50) book.prev();   // Swipe right
+    });
 </script>
 
 </body>
