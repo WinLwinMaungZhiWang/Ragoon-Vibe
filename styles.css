@@ -1,59 +1,26 @@
-/* ------------------------------
-   Global Page Style
---------------------------------*/
 body {
     margin: 0;
-    padding: 0;
-    background: #e5e5e5;      /* Light gray background */
-    font-family: Arial, sans-serif;
+    background: #e5e5e5;
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    height: 100vh;
 }
 
-/* ------------------------------
-   Flipbook Container
---------------------------------*/
 #flipbook {
-    width: 900px;             /* Adjust book width */
-    height: 600px;            /* Adjust book height */
-    margin: auto;
+    width: 900px;
+    height: 600px;
     background: white;
-    box-shadow: 0 0 25px rgba(0,0,0,0.2);  /* Book drop shadow */
-    border-radius: 10px;      /* Rounded corners */
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
 }
 
-/* Turn.js pages */
-#flipbook .page {
-    background-color: #fff;
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-}
-
-/* ------------------------------
-   Canvas Page Style
---------------------------------*/
-canvas {
+.page {
     width: 100%;
     height: 100%;
-    display: block;
 }
 
-/* ------------------------------
-   Optional: Page Shadow Effects
---------------------------------*/
-.page-shadow {
-    box-shadow: inset -5px 0 8px rgba(0,0,0,0.2);
-}
-
-/* Optional: center page numbers or titles */
-.page-number {
-    position: absolute;
-    bottom: 10px;
+.page img {
     width: 100%;
-    text-align: center;
-    font-size: 14px;
-    color: #666;
+    height: 100%;
+    object-fit: cover;
 }
