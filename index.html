@@ -14,23 +14,24 @@
         margin: 0;
         font-family: sans-serif;
         overflow: hidden;
+        touch-action: manipulation; /* improve mobile tap */
     }
 
-    /* Make viewer responsive */
     .viewer {
-        width: 90vw;              /* auto scale to phone width */
-        max-width: 500px;         /* limit for large screens */
-        height: 140vw;            /* keep book shape */
-        max-height: 700px;
+        width: 95vw;
+        max-width: 600px;
+        height: 180vw;
+        max-height: 900px;
         position: relative;
         perspective: 2000px;
+        cursor: pointer;
     }
 
     .page {
         width: 100%;
         height: 100%;
         position: absolute;
-        background-size: contain; /* no crop, full fit */
+        background-size: contain;
         background-repeat: no-repeat;
         background-position: center;
         backface-visibility: hidden;
@@ -46,52 +47,20 @@
     .flip-page.reverse {
         transform-origin: right center;
     }
-
-    /* Buttons responsive */
-    .controls {
-        position: absolute;
-        bottom: -60px;
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-    }
-
-    button {
-        padding: 8px 18px;
-        background: #444;
-        color: white;
-        border: none;
-        cursor: pointer;
-        font-size: 16px;
-        border-radius: 6px;
-    }
-
-    button:hover {
-        background: #666;
-    }
-
-    /* Better for mobile touch */
-    button:active {
-        transform: scale(0.95);
-    }
 </style>
 </head>
 <body>
 
-<div class="viewer">
+<div class="viewer" id="viewer">
     <div id="currentPage" class="page"></div>
     <div id="flipPage" class="page flip-page"></div>
-
-    <div class="controls">
-        <button id="prevBtn">◀ Back</button>
-        <button id="nextBtn">Next ▶</button>
-    </div>
 </div>
 
 <script>
 let page = 1;
-let maxPages = 10; // change to your number of pages
+let maxPages = 7;
 
+const viewer = document.getElementById("viewer");
 const currentPage = document.getElementById("currentPage");
 const flipPage = document.getElementById("flipPage");
 
@@ -99,38 +68,56 @@ function showPage(number) {
     currentPage.style.backgroundImage = `url('page${number}.png')`;
 }
 
-// initial page
+// initial
 showPage(page);
 
-document.getElementById("nextBtn").onclick = () => {
-    if (page >= maxPages) return;
-
+// Flip forward
+function nextPage() {
     flipPage.classList.remove("reverse");
     flipPage.style.transformOrigin = "left center";
-    flipPage.style.backgroundImage = `url('page${page + 1}.png')`;
+
+    let nextPageNum = page + 1;
+    if (nextPageNum > maxPages) nextPageNum = 1;
+
+    flipPage.style.backgroundImage = `url('page${nextPageNum}.png')`;
     flipPage.style.transform = "rotateY(-180deg)";
 
     setTimeout(() => {
-        page++;
+        page = nextPageNum;
         showPage(page);
         flipPage.style.transform = "rotateY(0deg)";
     }, 700);
-};
+}
 
-document.getElementById("prevBtn").onclick = () => {
-    if (page <= 1) return;
-
+// Flip backward
+function prevPage() {
     flipPage.classList.add("reverse");
     flipPage.style.transformOrigin = "right center";
-    flipPage.style.backgroundImage = `url('page${page - 1}.png')`;
+
+    let prevPageNum = page - 1;
+    if (prevPageNum < 1) prevPageNum = maxPages;
+
+    flipPage.style.backgroundImage = `url('page${prevPageNum}.png')`;
     flipPage.style.transform = "rotateY(180deg)";
 
     setTimeout(() => {
-        page--;
+        page = prevPageNum;
         showPage(page);
         flipPage.style.transform = "rotateY(0deg)";
     }, 700);
-};
+}
+
+// Detect tap/click on left or right
+viewer.addEventListener("click", (e) => {
+    const rect = viewer.getBoundingClientRect();
+    const x = e.clientX - rect.left; // x inside viewer
+
+    if (x < rect.width / 2) {
+        prevPage();
+    } else {
+        nextPage();
+    }
+});
 </script>
 
 </body>
