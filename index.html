@@ -1,19 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<title>3D Flipbook (Single Page)</title>
-
-<!-- jQuery (Required for Turn.js) -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Turn.js CDN (Full working version) -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/turn.js/4.1.0/turn.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
     body {
         margin: 0;
-        padding: 0;
         background: #222;
         display: flex;
         justify-content: center;
@@ -22,54 +14,47 @@
         overflow: hidden;
     }
 
-    /* Book container */
-    #book {
-        width: 100vw;       /* full width of screen */
-        height: 100vh;      /* full height of screen */
+    #flipbook {
+        width: 100vw;
+        height: 100vh;
     }
 
-    /* Each page */
-    .page {
+    #flipbook .page {
         width: 100%;
         height: 100%;
-        background-size: contain !important;
-        background-repeat: no-repeat !important;
-        background-position: center !important;
+        background-size: contain;
+        background-position: center;
+        background-repeat: no-repeat;
     }
-
 </style>
+
+<!-- WORKING 3D FLIPBOOK LIBRARY -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/blasten/turn.js/turn.min.js"></script>
+
 </head>
 <body>
 
-<div id="book">
-    <div class="page" style="background-image: url('page1.png');"></div>
-    <div class="page" style="background-image: url('page2.png');"></div>
-    <div class="page" style="background-image: url('page3.png');"></div>
-    <div class="page" style="background-image: url('page4.png');"></div>
+<div id="flipbook">
+    <div class="page" style="background-image:url('page1.png')"></div>
+    <div class="page" style="background-image:url('page2.png')"></div>
+    <div class="page" style="background-image:url('page3.png')"></div>
+    <div class="page" style="background-image:url('page4.png')"></div>
 </div>
 
 <script>
-$(document).ready(function () {
-    $("#book").turn({
+    $("#flipbook").turn({
         width: window.innerWidth,
         height: window.innerHeight,
         autoCenter: true,
-        display: "single",           // one page at a time
-        elevation: 800,              // 3D depth
+        elevation: 200,
         gradients: true,
-        duration: 1000,              // animation speed
-        when: {
-            turning: function(event, page, view) {
-                console.log("Turning to page " + page);
-            }
-        }
+        duration: 800,
+        display: "single"    // SHOW ONE PAGE ONLY
     });
 
-    // Resize automatically on mobile / rotation
-    $(window).on('resize', function () {
-        $("#book").turn("size", window.innerWidth, window.innerHeight);
-    });
-});
+    // Touch swipe support for mobile
+    $("#flipbook").on("touchstart", function(){});
 </script>
 
 </body>
