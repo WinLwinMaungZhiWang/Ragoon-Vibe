@@ -1,31 +1,80 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Rangoon Vibe Menu Gallery</title>
-  <link rel="stylesheet" href="styles.css" />
+<meta charset="UTF-8">
+<title>PDF Flipbook</title>
+
+<style>
+    body {
+        margin: 0;
+        background: #ccc;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    #flipbook {
+        width: 800px;
+        height: 500px;
+    }
+
+    canvas {
+        width: 100%;
+        height: 100%;
+    }
+</style>
+
+<script src="pdf.js"></script>
+<script src="turn/turn.min.js"></script>
 </head>
+
 <body>
-  <header>
-    <h1>Rangoon Vibe Menu</h1>
-  </header>
 
-  <main class="gallery">
-    <!-- Replace filenames with your actual images -->
-    <img src="images/cover_photo.jpg" alt="Drink 1">
-  </main>
+<div id="flipbook"></div>
 
-  <main class="gallery twoCol">
-    <!-- Replace filenames with your actual images -->
-    <img src="images/logo.jpg" alt="Drink 1">
-    <img src="images/logo.jpg" alt="Drink 2">
-    <img src="images/logo.jpg" alt="Main Dish 1">
-    <img src="images/logo.jpg" alt="Main Dish 2">
-  </main>
-  
-  <footer>
-    <p>© Rangoon Vibe Cafe</p>
-  </footer>
+<script>
+// Load PDF
+const url = "MENU-BOOK.pdf";
+
+pdfjsLib.getDocument(url).promise.then(function(pdf) {
+
+    let flipbook = document.getElementById("flipbook");
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+        let pageDiv = document.createElement("div");
+        pageDiv.style.width = "100%";
+        pageDiv.style.height = "100%";
+
+        flipbook.appendChild(pageDiv);
+
+        pdf.getPage(i).then(function(page) {
+            let viewport = page.getViewport({ scale: 2 });
+            let canvas = document.createElement("canvas");
+            let ctx = canvas.getContext("2d");
+            canvas.height = viewport.height;
+            canvas.width = viewport.width;
+
+            page.render({
+                canvasContext: ctx,
+                viewport: viewport
+            });
+
+            pageDiv.appendChild(canvas);
+        });
+    }
+
+    // Initialize Flipbook
+    setTimeout(() => {
+        $('#flipbook').turn({
+            width: 800,
+            height: 500,
+            autoCenter: true
+        });
+    }, 1000);
+
+});
+</script>
+
 </body>
 </html>
