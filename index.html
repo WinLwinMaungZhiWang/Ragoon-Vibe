@@ -29,11 +29,10 @@
   </div>
 </div>
 
-<!-- Load THREE.js as ES module -->
 <script type="module">
 import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
 
-/* ============ CONFIG ============ */
+/* CONFIG */
 const images = [
   "./main/page1.png","./main/page2.png","./main/page3.png","./main/page4.png",
   "./main/page5.png","./main/page6.png","./main/page7.png"
@@ -41,7 +40,6 @@ const images = [
 const PAGE_WIDTH = 1.0;
 const PAGE_HEIGHT = 1.5;
 const SHELF_DEPTH = 0.02;
-/* ================================= */
 
 let scene, camera, renderer, clock;
 let bookGroup;
@@ -63,7 +61,6 @@ async function init(){
   camera = new THREE.PerspectiveCamera(40, aspect, 0.1, 20);
   camera.position.set(0,0,3);
 
-  // light
   scene.add(new THREE.HemisphereLight(0xffffff, 0x222222, 0.9));
 
   clock = new THREE.Clock();
@@ -71,7 +68,6 @@ async function init(){
   bookGroup = new THREE.Group();
   scene.add(bookGroup);
 
-  // Load textures
   const loader = new THREE.TextureLoader();
   const texs = images.map(src => loader.load(src));
 
@@ -92,7 +88,6 @@ function buildSheets(texs){
   for (let i=0; i<texs.length; i++){
     const mat = new THREE.MeshBasicMaterial({map: texs[i]});
     const mesh = new THREE.Mesh(geo, mat);
-
     mesh.position.set(0,0, -i * SHELF_DEPTH);
     bookGroup.add(mesh);
     sheets.push({mesh, progress:0});
@@ -151,5 +146,6 @@ function onResize(){
   camera.updateProjectionMatrix();
 }
 </script>
+
 </body>
 </html>
