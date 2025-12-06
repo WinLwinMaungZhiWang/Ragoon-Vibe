@@ -1,151 +1,206 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Smooth 3D Flipbook</title>
-
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Menu Flipbook</title>
 <style>
-  html,body{height:100%;margin:0;background:#000;color:#fff;font-family:sans-serif}
-  .stage{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;padding:8px;box-sizing:border-box}
-  #canvasWrap{width:100%;max-width:1100px;height:80vh;background:#111;border-radius:12px;overflow:hidden;position:relative}
-  #overlayUI{position:absolute;left:12px;top:12px;z-index:30;display:flex;gap:8px}
-  .btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer;font-weight:600}
-  .pager{position:absolute;right:12px;bottom:12px;background:rgba(0,0,0,0.5);padding:8px 12px;border-radius:10px;font-weight:600}
-  .hint{position:absolute;left:50%;transform:translateX(-50%);bottom:10%;color:#aaa;font-size:13px}
-  canvas{display:block}
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #111;
+        font-family: sans-serif;
+    }
+    #view3D {
+        width: 100vw;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
 </style>
 </head>
-
 <body>
-<div class="stage">
-  <div id="canvasWrap">
-    <div id="overlayUI">
-      <button id="prevBtn" class="btn">◀ Prev</button>
-      <button id="nextBtn" class="btn">Next ▶</button>
-    </div>
-    <div id="pager" class="pager">0 / 0</div>
-    <div class="hint">Swipe or click left/right</div>
-  </div>
-</div>
+<div id="view3D"></div>
 
 <script type="module">
-import * as THREE from "https://unpkg.com/three@0.160.0/build/three.module.js";
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js";
 
-/* CONFIG */
+//------------------------------------------------------
+// CONFIG
+//------------------------------------------------------
 const images = [
-  "./main/page1.png","./main/page2.png","./main/page3.png","./main/page4.png",
-  "./main/page5.png","./main/page6.png","./main/page7.png"
+    "./main/page1.png",
+    "./main/page2.png",
+    "./main/page3.png",
+    "./main/page4.png",
+    "./main/page5.png",
+    "./main/page6.png",
+    "./main/page7.png"
 ];
-const PAGE_WIDTH = 1.0;
-const PAGE_HEIGHT = 1.5;
-const SHELF_DEPTH = 0.02;
 
-let scene, camera, renderer, clock;
-let bookGroup;
-let sheets = [];
-let currentIndex = 0;
+//------------------------------------------------------
+// THREE.JS SETUP
+//------------------------------------------------------
+const view3D = document.getElementById("view3D");
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setPixelRatio(window.devicePixelRatio);
+view3D.appendChild(renderer.domElement);
 
-init();
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x111111);
 
-async function init(){
-  const container = document.getElementById("canvasWrap");
-  renderer = new THREE.WebGLRenderer({antialias:true});
-  renderer.setPixelRatio(window.devicePixelRatio);
-  renderer.setSize(container.clientWidth, container.clientHeight);
-  container.appendChild(renderer.domElement);
+const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 2000);
+camera.position.set(0, 1.2, 4);
 
-  scene = new THREE.Scene();
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+controls.enableZoom = false;
+controls.enablePan = false;
+controls.target.set(0, 1, 0);
+controls.update();
 
-  const aspect = container.clientWidth / container.clientHeight;
-  camera = new THREE.PerspectiveCamera(40, aspect, 0.1, 20);
-  camera.position.set(0,0,3);
+//------------------------------------------------------
+// LIGHT
+//------------------------------------------------------
+scene.add(new THREE.AmbientLight(0xffffff, 1.2));
 
-  scene.add(new THREE.HemisphereLight(0xffffff, 0x222222, 0.9));
+//------------------------------------------------------
+// LOAD ALL IMAGES FIRST
+//------------------------------------------------------
+const loader = new THREE.TextureLoader();
+const texPromises = images.map(src => new Promise((resolve, reject) => {
+    loader.load(src, resolve, undefined, reject);
+}));
 
-  clock = new THREE.Clock();
+const texs = await Promise.all(texPromises);
 
-  bookGroup = new THREE.Group();
-  scene.add(bookGroup);
-
-  const loader = new THREE.TextureLoader();
-  const texs = images.map(src => loader.load(src));
-
-  buildSheets(texs);
-
-  document.getElementById("nextBtn").onclick = () => flip(true);
-  document.getElementById("prevBtn").onclick = () => flip(false);
-
-  window.addEventListener("resize", onResize);
-
-  animate();
+//------------------------------------------------------
+// BUILD BOOK SPREADS
+//------------------------------------------------------
+const spreads = [];
+for (let i = 0; i < images.length; i += 2) {
+    spreads.push({ left: texs[i], right: texs[i + 1] || null });
 }
 
-function buildSheets(texs){
-  const cols = 40, rows = 40;
-  const geo = new THREE.PlaneGeometry(PAGE_WIDTH, PAGE_HEIGHT, cols, rows);
+const sheetW = 1.6;
+const sheetH = 2.3;
 
-  for (let i=0; i<texs.length; i++){
-    const mat = new THREE.MeshBasicMaterial({map: texs[i]});
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.set(0,0, -i * SHELF_DEPTH);
-    bookGroup.add(mesh);
-    sheets.push({mesh, progress:0});
-  }
+const pages = [];
 
-  const scale = 1.6 / PAGE_HEIGHT;
-  bookGroup.scale.set(scale, scale, scale);
+spreads.forEach((s, i) => {
+    const group = new THREE.Group();
+    group.position.x = i * 0.001;
 
-  updatePager();
-}
-
-function flip(forward){
-  const target = forward ? currentIndex : currentIndex - 1;
-  if (target < 0 || target >= sheets.length) return;
-
-  const sheet = sheets[target];
-  const start = sheet.progress;
-  const end = forward ? 1 : 0;
-  const duration = 0.5;
-  const startTime = performance.now();
-
-  function animateFlipFrame(now){
-    const t = Math.min((now - startTime)/ (duration*1000), 1);
-    const p = start + (end-start)*ease(t);
-
-    sheet.progress = p;
-    sheet.mesh.rotation.y = -p * Math.PI;
-
-    if (t < 1){
-      requestAnimationFrame(animateFlipFrame);
-    } else {
-      if (forward) currentIndex++;
-      else currentIndex--;
-      updatePager();
+    // Left page
+    if (s.left) {
+        const geoL = new THREE.PlaneGeometry(sheetW, sheetH);
+        const matL = new THREE.MeshBasicMaterial({ map: s.left });
+        const meshL = new THREE.Mesh(geoL, matL);
+        meshL.position.x = -sheetW / 2;
+        group.add(meshL);
     }
-  }
-  requestAnimationFrame(animateFlipFrame);
+
+    // Right page
+    if (s.right) {
+        const geoR = new THREE.PlaneGeometry(sheetW, sheetH);
+        const matR = new THREE.MeshBasicMaterial({ map: s.right });
+        const meshR = new THREE.Mesh(geoR, matR);
+        meshR.position.x = sheetW / 2;
+        meshR.rotation.y = Math.PI;
+        group.add(meshR);
+    }
+
+    group.position.y = 1;
+    pages.push(group);
+    scene.add(group);
+});
+
+//------------------------------------------------------
+// FLIP ANIMATION
+//------------------------------------------------------
+let currentPage = 0;
+
+function flipNext() {
+    if (currentPage >= pages.length - 1) return;
+
+    const page = pages[currentPage];
+    const start = page.rotation.y;
+    const end = start + Math.PI;
+    animate(page, start, end);
+    currentPage++;
 }
 
-function ease(x){ return x<0.5 ? 4*x*x*x : 1 - Math.pow(-2*x+2,3)/2; }
+function flipPrev() {
+    if (currentPage <= 0) return;
 
-function updatePager(){
-  document.getElementById("pager").textContent = 
-    (currentIndex+1) + " / " + sheets.length;
+    currentPage--;
+    const page = pages[currentPage];
+    const start = page.rotation.y;
+    const end = start - Math.PI;
+    animate(page, start, end);
 }
 
-function animate(){
-  renderer.render(scene, camera);
-  requestAnimationFrame(animate);
+function animate(target, from, to) {
+    const D = 0.6;
+    const t0 = performance.now();
+
+    function frame() {
+        const t = (performance.now() - t0) / (D * 1000);
+        if (t >= 1) {
+            target.rotation.y = to;
+            return;
+        }
+        target.rotation.y = from + (to - from) * t;
+        requestAnimationFrame(frame);
+    }
+    frame();
 }
 
-function onResize(){
-  const container = document.getElementById("canvasWrap");
-  renderer.setSize(container.clientWidth, container.clientHeight);
-  camera.aspect = container.clientWidth / container.clientHeight;
-  camera.updateProjectionMatrix();
+//------------------------------------------------------
+// SWIPE CONTROLS
+//------------------------------------------------------
+let startX = 0;
+let endX = 0;
+
+window.addEventListener("touchstart", e => {
+    startX = e.touches[0].clientX;
+});
+window.addEventListener("touchend", e => {
+    endX = e.changedTouches[0].clientX;
+    if (endX - startX > 50) flipPrev();
+    if (startX - endX > 50) flipNext();
+});
+
+// CLICK / MOUSE
+window.addEventListener("click", e => {
+    if (e.clientX > window.innerWidth / 2) flipNext();
+    else flipPrev();
+});
+
+//------------------------------------------------------
+// RENDER LOOP
+//------------------------------------------------------
+function render() {
+    requestAnimationFrame(render);
+    controls.update();
+    renderer.render(scene, camera);
 }
+render();
+
+//------------------------------------------------------
+// RESIZE
+//------------------------------------------------------
+window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+});
 </script>
-
 </body>
 </html>
